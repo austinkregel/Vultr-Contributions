@@ -142,11 +142,27 @@ Either way, you're still going to want to change a few things.
 
 ## Configuration
 
-Here is where you may need a little help. In the `/etc/snort/snort.conf` file, you will need to change the variable `HOME_NET` it should be set to your internal network's ip block so it won't log your own network's attempts to log into the server. This may be `10.0.0.0/24` or `192.168.1.0/8`. So on line 45 of `/etc/snort/snort.conf` change the value of `HOME_NET` to that value of your network's ip block. 
+Here is where you may need a little help. In the `/etc/snort/snort.conf` file, you will need to change the variable `HOME_NET` it should be set to your internal network's ip block so it won't log your own network's attempts to log into the server. This may be `10.0.0.0/24` or `192.168.0.0/24`. So on line 45 of `/etc/snort/snort.conf` change the variable `HOME_NET` to that value of your network's ip block. 
 
-ex.
+For me it's :
 
-    ipvar HOME_NET 192.168.1.0/8
+    ipvar HOME_NET 10.99.0.0/24
 
+Then you'll have to set the `EXTERNAL_NET` variable to 
 
+    !HOME_NET
+  
+Which just turns EXERNAL_NET into whatever your HOME_NET isn't.
+
+#### Setting the rules
+
+Now that a large majority of the system is set up we need to configure our rules for this little piggy. Somewhere around line 104 in your `/etc/snort/snort.conf` file, you should see a var declartion and the variables `RULE_PATH`, `SO_RULE_PATH`, `PREPROC_RULE_PATH`, `WHITE_LIST_PATH`, and `BLACK_LIST_PATH`. Now their values should be paths we set up in `Unrooting Snort`.
+
+    var RULE_PATH /etc/snort/rules
+    var SO_RULE_PATH /etc/snort/so_rules
+    var PREPROC_RULE_PATH /etc/snort/preproc_rules
+    var WHITE_LIST_PATH /etc/snort/rules
+    var BLACK_LIST_PATH /etc/snort/rules
+
+Once those values are set you're ready to start testing Snort.
 
