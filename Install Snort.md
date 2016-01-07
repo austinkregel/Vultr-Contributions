@@ -143,11 +143,11 @@ Either way, you're still going to want to change a few things.
 
 ## Configuration
 
-Here is where you may need a little help. In the `/etc/snort/snort.conf` file, you will need to change the variable `HOME_NET` it should be set to your internal network's ip block so it won't log your own network's attempts to log into the server. This may be `10.0.0.0/24` or `192.168.0.0/24`. So on line 45 of `/etc/snort/snort.conf` change the variable `HOME_NET` to that value of your network's ip block. 
+Here is where you may need a little help. In the `/etc/snort/snort.conf` file, you will need to change the variable `HOME_NET` it should be set to your internal network's ip block so it won't log your own network's attempts to log into the server. This may be `10.0.0.0/24` or `192.168.0.0/16`. So on line 45 of `/etc/snort/snort.conf` change the variable `HOME_NET` to that value of your network's ip block. 
 
 For me it's :
 
-    ipvar HOME_NET 10.99.0.0/24
+    ipvar HOME_NET 192.168.0.0/16
 
 Then you'll have to set the `EXTERNAL_NET` variable to 
 
@@ -218,3 +218,31 @@ Now that we are all configured and we don't have any errors, we're ready to star
 
 By far the easiest way to test Snort would be by enabling the local.rules. This is just a place to set your custom rules for your implementation of Snort.
 
+If you noticed in the snort.conf file, some where around line 546, you should have 
+
+    include $RULE_PATH/local.rules
+
+If you don't have it, please add it around 546. Once that is all set up you'll need to set up the local.rules file for testing. Just something small, I'll just have it keep track of a ping request (ICMP request). You can do that by adding in the following line to your local.rules file.
+
+     alert icmp any any -> $HOME_NET any (msg:"ICMP test"; sid:10000001; rev:001;)
+     
+Once you have that in your file, save it, and then lets get to the testing.
+
+## Getting to the testing
+The following command will start snort and it will print "fast mode" alerts, as the user snort, under the group snort, using the config `/etc/snort/snort.conf`, and it will listen on the network interface `eno1`. You will need to change eno1 to whatever network interface your system is listening on.
+
+    $ sudo /usr/local/bin/snort -A console -q -u snort -g snort -c /etc/snort/snort.conf -i eno1
+
+Once you have it running, ping that computer. You should start to see something that looks like the following.
+
+    01/07−16:03:30.611173 [∗∗] [1:10000001:0] ICMP test [∗∗] [Priority: 0] {ICMP} 192.168.1.105 −> 192.168.1.104
+    01/07−16:03:31.612174 [∗∗] [1:10000001:0] ICMP test [∗∗] [Priority: 0] {ICMP} 192.168.1.104 −> 192.168.1.105
+    01/07−16:03:31.612202 [∗∗] [1:10000001:0] ICMP test [∗∗] [Priority: 0] {ICMP} 192.168.1.105 −> 192.168.1.104
+    ˆC∗∗∗ Caught Int−Signal
+
+You can press ctrl+c to exit the program, and that's it. Snort is all set up. 
+
+## Sidenote:
+I want to note that there are some public rules made by the community you can download from [snort.org](https://www.snort.org/downloads#rule-downloads) under the "Community" tab, look for 'Snort', then just under that there is a community link. Download that, extract it, and look for the `community.rules` file.
+
+You'll have to uncomment most of the file, but the rules they have there are really use full.
