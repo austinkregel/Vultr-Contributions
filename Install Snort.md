@@ -19,7 +19,7 @@ Before we actually get our hands into the Snort (S) sources, we need to make sur
 # Pre-install configuration
 Once your system has rebooted, we need to install a number of packages to make sure that we can install SBPP. I was able to figure out a number of the packages that were needed so I have the base command below.
 
-    sudo apt-get install flex bison build-essential checkinstall libpcap-dev libnet1-dev libpcre3-dev libmysqlclient15-dev libnetfilter-queue-dev iptables-dev libdumbnet-dev -y
+    sudo apt-get install flex bison build-essential checkinstall libpcap-dev libnet1-dev libpcre3-dev libnetfilter-queue-dev iptables-dev libdumbnet-dev -y
 
 Once all of the packages are installed you will need to create a temporary directory for your sources files, they can be where ever you want, we'll have it in `/usr/src/snort_src`. So to create this folder you'll need to be root or have sudo permissions, root just makes it easier.
  
@@ -53,19 +53,19 @@ We want to make sure we're in the `/usr/src/snort_src` directory again, so be su
 
     cd /usr/src/snort_src
 
-Now that we are in the directory for the sources, we should download the `tar.gz` file for the source. At the time of this writing, (09/24/2015) the most recent version of Snort is 2.9.7.5
+Now that we are in the directory for the sources, we should download the `tar.gz` file for the source. At the time of this writing, (01/07/2016) the most recent version of Snort is 2.9.8.0
 
-    wget https://www.snort.org/downloads/snort/snort-2.9.7.5.tar.gz
+    wget https://www.snort.org/downloads/snort/snort-2.9.8.0.tar.gz
 
 The commands to actually install snort are very similar to the ones used in the DAQ, but they have different options.
 
 Extract the Snort source files
     
-    tar xvfz snort-2.9.7.5.tar.gz
+    tar xvfz snort-2.9.8.0.tar.gz
 
 Change into the source directory
 
-    cd snort-2.9.7.5
+    cd snort-2.9.8.0
 
 Configure and install the sources
 
@@ -73,7 +73,7 @@ Configure and install the sources
 
 ### Post-install of Snort
 Once we have Snort installed, we need to make sure that our shared libraries are up to date. We can do this using the command 
-   
+
     sudo ldconfig
 
 After we do that, we now need to make sure that snort is installed, we can do this by typing
@@ -84,6 +84,7 @@ After we do that, we now need to make sure that snort is installed, we can do th
 If this command does not work you will need to create the symlink you can do this by typing
 
     sudo ln -s /usr/local/bin/snort /usr/sbin/snort
+    snort --version
 
 The resulting output should be something like this....
 
@@ -150,7 +151,7 @@ For me it's :
 
 Then you'll have to set the `EXTERNAL_NET` variable to 
 
-    !HOME_NET
+    any
   
 Which just turns EXERNAL_NET into whatever your HOME_NET isn't.
 
@@ -164,5 +165,56 @@ Now that a large majority of the system is set up we need to configure our rules
     var WHITE_LIST_PATH /etc/snort/rules
     var BLACK_LIST_PATH /etc/snort/rules
 
-Once those values are set you're ready to start testing Snort.
+Once those values are set, we have to make sure you *delete or comment out the current rules starting on about line 548*.
+
+Now lets check to make sure that your config is all set up properly. You can do that by using the flowing command.
+
+     # snort -T -c /etc/snort/snort.conf
+     
+You should be able to get something like the following (truncated for brevity)
+     Running in Test mode
+     
+             --== Initializing Snort ==--
+     Initializing Output Plugins!
+     Initializing Preprocessors!
+     Initializing Plug-ins!
+     .....
+     Rule application order: activation->dynamic->pass->drop->sdrop->reject->alert->log
+     Verifying Preprocessor Configurations!
+     
+             --== Initialization Complete ==--
+     
+        ,,_     -*> Snort! <*-
+       o"  )~   Version 2.9.8.0 GRE (Build 229) 
+        ''''    By Martin Roesch & The Snort Team: http://www.snort.org/contact#team
+                Copyright (C) 2014-2015 Cisco and/or its affiliates. All rights reserved.
+                Copyright (C) 1998-2013 Sourcefire, Inc., et al.
+                Using libpcap version 1.7.4
+                Using PCRE version: 8.35 2014-04-04
+                Using ZLIB version: 1.2.8
+     
+                Rules Engine: SF_SNORT_DETECTION_ENGINE  Version 2.4  <Build 1>
+                Preprocessor Object: SF_IMAP  Version 1.0  <Build 1>
+                Preprocessor Object: SF_FTPTELNET  Version 1.2  <Build 13>
+                Preprocessor Object: SF_SIP  Version 1.1  <Build 1>
+                Preprocessor Object: SF_REPUTATION  Version 1.1  <Build 1>
+                Preprocessor Object: SF_POP  Version 1.0  <Build 1>
+                Preprocessor Object: SF_DCERPC2  Version 1.0  <Build 3>
+                Preprocessor Object: SF_SDF  Version 1.1  <Build 1>
+                Preprocessor Object: SF_GTP  Version 1.1  <Build 1>
+                Preprocessor Object: SF_DNS  Version 1.1  <Build 4>
+                Preprocessor Object: SF_SSH  Version 1.1  <Build 3>
+                Preprocessor Object: SF_DNP3  Version 1.1  <Build 1>
+                Preprocessor Object: SF_SSLPP  Version 1.1  <Build 4>
+                Preprocessor Object: SF_SMTP  Version 1.1  <Build 9>
+                Preprocessor Object: SF_MODBUS  Version 1.1  <Build 1>
+     
+     Snort successfully validated the configuration!
+     Snort exiting
+
+Now that we are all configured and we don't have any errors, we're ready to start testing Snort.
+
+## Testing Snort
+
+By far the easiest way to test Snort would be by enabling the local.rules. This is just a place to set your custom rules for your implementation of Snort.
 
