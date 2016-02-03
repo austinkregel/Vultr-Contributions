@@ -109,4 +109,6 @@ After starting barnyard, once `Waiting for new data` appears you can quit the ap
 
 As long as the count is more than 0 everything worked properly!
 
+However, if the count IS 0, you're probably either pinging your system from a system that matches a whitelisted ip. If that is the case, try pinging your system from out side your network and to make sure that is exposed to the outside world.
+
 **Congratulations, you now have a way to read and keep track of your detected intrusions.**
