@@ -1,4 +1,4 @@
-Barnyard2 is a way to turn the binary outputs from Snort into human readable text using a MySQL database.
+Barnyard2 is a way to store and process the binary outputs from Snort into a MySQL database.
 
 # Update, Upgrade, and Reboot
 Before we actually get our hands into the Snort (S) sources, we need to make sure our system is up to date. We can do this by issuing the commands below.
